@@ -25,6 +25,10 @@ module "application" {
   app_sg_id      = module.security.app_sg_id
   target_group_arn = module.alb.target_group_arn
   instance_type = var.instance_type
+  db_endpoint = module.database.db_instance_address
+  db_name     = module.database.db_name
+  db_username = module.database.db_username
+  db_password = var.db_password
 }
 
 module "database" {

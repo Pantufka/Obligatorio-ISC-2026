@@ -22,3 +22,13 @@ output "db_subnet_group_name" {
   description = "Nombre del DB Subnet Group utilizado por RDS."
   value       = aws_db_subnet_group.main.name
 }
+
+output "db_name" {
+  description = "Nombre de la base de datos."
+  value       = aws_db_instance.main.db_name
+}
+
+output "db_username" {
+  description = "Usuario administrador de la base."
+  value       = aws_db_instance.main.username
+}

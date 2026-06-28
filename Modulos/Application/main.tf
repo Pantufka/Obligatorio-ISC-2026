@@ -33,7 +33,7 @@ resource "aws_launch_template" "app" {
     # Instalar PHP y sus extensiones
     yum install php php-cli php-common php-mbstring php-xml php-mysql php-fpm
 
-    # Instalar Apache y Git
+    # Instalar Apache, Git y MySQL
     yum install -y httpd git
 
     # Habilitar Apache al iniciar la instancia
@@ -48,7 +48,36 @@ resource "aws_launch_template" "app" {
     # Copiar la aplicación al DocumentRoot de Apache
     cp -r php-ecommerce-obligatorio/* /var/www/html/
 
-EOF
+    # Crear el archivo de configuración de la aplicación
+    cat > /var/www/html/config.php <<EOL
+    <?php
+    ini_set('display_errors',1);
+    error_reporting(-1);
+    define('DB_HOST', '${var.db_endpoint}');
+    define('DB_USER', '${var.db_username}');
+    define('DB_PASSWORD', '${var.db_password}');
+    define('DB_DATABASE', '${var.db_name}');
+    ?>
+    EOL
+
+    # Esperar hasta que la base de datos esté disponible
+    until mysqladmin ping \
+    -h ${var.db_endpoint} \
+    -u ${var.db_username} \
+    -p${var.db_password} \
+    --silent
+    do
+      echo "Esperando a que RDS esté disponible"
+      sleep 30
+    done
+
+    # Importar la base de datos inicial
+    mysql -h ${var.db_endpoint} -u ${var.db_username} -p${var.db_password} ${var.db_name} < /var/www/html/dump.sql
+
+    # Reiniciar Apache
+    systemctl restart httpd
+
+  EOF
   )
 }
 
