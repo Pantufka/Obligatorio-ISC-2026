@@ -4,7 +4,7 @@ Se presenta el diseño de la mejora para la actual infraestructura cumpliendo lo
 
 ## Contenido
 
-En el directorio raíz se encuentran todos los archivos Terraform además de la carpeta con los módulos necesarios para poder cumplir con el despliegue de la infraestructura y la carpeta que contiene todos los archivos de la aplicación a desplegar.
+En el directorio raíz se encuentran todos los archivos Terraform además de la carpeta con los módulos y la carpeta que contiene todos los archivos de la aplicación, necesarios para poder cumplir con el despliegue de la infraestructura. Para tener una idea también de la infraestructura que se va a desplegar, hay un archivo .png que muestra el diagrama completo de la misma.
 
 ## Requisitos generales
 
@@ -81,7 +81,53 @@ $ cd Chewbacca
 
 ## Modo de uso
 
-Antes de hacer el deployment de la infraestructura por Terraform, se debe inicializar el proyecto de Terraform con el comando:
+Para poder empezar con el deployment, primero se debe eliminar el archivo terraform.tfvars.example, ya que el archivo simplemente simula al archivo real que debería de existir en un deployment de producción. Esto se hace con el comando
+
+```bash
+$ git rm terraform.tfvars.example
+```
+Una vez eliminado, se necesita crear el archivo original que va a contener todas las variables necesarias para poder hacer el deployment correctamente. Eso se hace con el comando:
+
+```bash
+$ vim terraform.tfvars
+```
+Una vez dentro del archivo, es necesario copiar la siguiente información:
+
+aws_region = "us-east-1"
+
+vpc_cidr = "10.0.0.0/16"
+
+availability_zones = [
+  "us-east-1a",
+  "us-east-1b"
+]
+
+public_subnets = [
+  "10.0.1.0/24",
+  "10.0.2.0/24"
+]
+
+app_subnets = [
+  "10.0.11.0/24",
+  "10.0.12.0/24"
+]
+
+db_subnets = [
+  "10.0.21.0/24",
+  "10.0.22.0/24"
+]
+
+instance_type = "t2.micro"
+
+db_instance_class = "db.t3.micro"
+
+db_username = "admin"
+
+db_password = "CambiarPorUnaPasswordSegura123!"
+
+En este caso y al ser una entrega educativa, se brinda el contenido que va dentro del archivo mencionado ya que no hay ninguna información sensible para ninguna de las partes.
+
+Una vez finalizado el proceso anterior, se debe inicializar el proyecto de Terraform con el comando:
 
 ```bash
 $ terraform init
@@ -102,6 +148,8 @@ Por último, Terraform creará los recursos necesarios para que la infraestructu
 $ terraform apply
 ```
 Es un proceso que va a llevar unos cuantos minutos debido a la cantidad de recursos que se están creando, siendo la que más demore la base de datos. Terminado el proceso, se recibirá un mensaje que va a decir "Resources: 29 added, 0 changed, 0 destroyed."
+
+Habiendo finalizado el deployment, se puede ingresar al Load Balancer creado para obtener el DNS name por el que se va a acceder a la aplicación yendo a AWS > EC2 > Load Balancer.
 
 ## License
 
